@@ -10,11 +10,29 @@ pub struct JsOptions {
     num_res: u8,
 }
 
-pub fn search_pack(JsOptions { query, num_res }: &JsOptions) {
+struct Package {
+    name: String,
+    version: String,
+    description: String,
+    links: Links,
+    publisher: Publisher,
+}
+
+struct Links {
+    npm: String,
+    homepage: String,
+    repository: String,
+    bugs: String,
+}
+
+struct Publisher {
+    username: String,
+    email: String,
+}
+
+pub async fn search_pack(JsOptions { query, num_res }: &JsOptions) -> Result<(), reqwest::Error> {
     match query {
-        Some(s) => {
-            println!("Hello query")
-        }
+        Some(s) => {}
         None => println!("None"),
     }
 }
