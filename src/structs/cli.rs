@@ -1,3 +1,4 @@
+use crate::functions::{javascript, python, rust};
 use clap::{Parser, Subcommand};
 
 #[derive(Parser)]
