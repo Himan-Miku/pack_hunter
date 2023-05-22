@@ -1,9 +1,5 @@
 use clap::{Parser, Subcommand};
 
-pub mod javascript;
-pub mod python;
-pub mod rust;
-
 #[derive(Parser)]
 #[command(author, version, about, long_about = None)]
 #[command(propagate_version = true)]

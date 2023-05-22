@@ -1,17 +1,21 @@
-use clap::Parser;
-use pack_hunter::{javascript, Cli, Commands};
+mod functions;
+mod structs;
 
-fn main() {
+use clap::Parser;
+use structs::cli::{Cli, Commands};
+
+#[tokio::main]
+async fn main() {
     let cli = Cli::parse();
 
     match &cli.command {
         Commands::Javascript(js_options) => {
-            javascript::search_pack(js_options);
+            javascript::search_pack(js_options).await.unwrap();
         }
-        Commands::Rust(rs_options) => {
+        Commands::Rust(_rs_options) => {
             println!("Rust")
         }
-        Commands::Python(py_options) => {
+        Commands::Python(_py_options) => {
             println!("Python")
         }
     }
