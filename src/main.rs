@@ -14,7 +14,7 @@ async fn main() {
             javascript::search_pack(js_options).await.unwrap();
         }
         Commands::Rust(rs_options) => {
-            rust::search_pack(rs_options).await;
+            rust::search_pack(rs_options).await.unwrap();
         }
         Commands::Python(py_options) => {
             python::search_pack(py_options).await;
