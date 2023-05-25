@@ -1,4 +1,5 @@
 use clap::Args;
+use rand::Rng;
 use reqwest::header::{HeaderMap, HeaderValue, USER_AGENT};
 
 use crate::structs::rs_structs::ResponseObj;
@@ -11,6 +12,33 @@ pub struct RsOptions {
     ///number of results to display
     #[arg(short = 'n', long = "num_results", default_value_t = 5)]
     num_res: u8,
+}
+
+fn get_random_crate() -> String {
+    let crates = vec![
+        "tokio",
+        "rocket",
+        "miette",
+        "hyper",
+        "axum",
+        "serde",
+        "serde_json",
+        "anyhow",
+        "thiserror",
+        "log",
+        "env_logger",
+        "pretty_env_logger",
+        "tracing",
+        "crono",
+        "nom",
+        "textwrap",
+        "reqwest",
+        "rand",
+    ];
+
+    let random_crate = crates[rand::thread_rng().gen_range(0..crates.len())];
+
+    random_crate.to_owned()
 }
 
 pub async fn search_pack(
@@ -37,8 +65,12 @@ pub async fn search_pack(
             Ok(data)
         }
         None => {
-            let url =
-                format!("https://crates.io/api/v1/crates?q=thiserror&sort=downloads&per_page=5");
+            let crate_q = get_random_crate();
+
+            let url = format!(
+                "https://crates.io/api/v1/crates?q={}&sort=downloads&per_page=5",
+                crate_q
+            );
 
             let client = reqwest::Client::new();
 
