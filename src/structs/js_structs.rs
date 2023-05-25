@@ -14,12 +14,12 @@ pub struct SearchResult {
 pub struct Package {
     pub name: String,
     pub version: String,
-    pub description: String,
+    pub description: Option<String>,
     pub links: Link,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Link {
     pub npm: String,
-    pub repository: String,
+    pub repository: Option<String>,
 }
