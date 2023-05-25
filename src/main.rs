@@ -2,7 +2,7 @@ mod functions;
 mod structs;
 
 use clap::Parser;
-use functions::{javascript, python, rust};
+use functions::{javascript, rust};
 use structs::cli::{Cli, Commands};
 
 #[tokio::main]
@@ -15,9 +15,6 @@ async fn main() {
         }
         Commands::Rust(rs_options) => {
             rust::search_pack(rs_options).await.unwrap();
-        }
-        Commands::Python(py_options) => {
-            python::search_pack(py_options).await;
         }
     }
 }

@@ -1,4 +1,4 @@
-use crate::functions::{javascript, python, rust};
+use crate::functions::{javascript, rust};
 use clap::{Parser, Subcommand};
 
 #[derive(Parser)]
@@ -11,8 +11,6 @@ pub struct Cli {
 
 #[derive(Subcommand)]
 pub enum Commands {
-    /// Search for Python Packages
-    Python(python::PyOptions),
     /// Search for Javascript Packages
     Javascript(javascript::JsOptions),
     /// Search for Rust Crates
