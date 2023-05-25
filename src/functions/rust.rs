@@ -19,8 +19,8 @@ pub async fn search_pack(
     match query {
         Some(q) => {
             let url = format!(
-                "https://crates.io/api/v1/crates?q={}&sort=downloads&per_page=5",
-                q
+                "https://crates.io/api/v1/crates?q={}&sort=downloads&per_page={}",
+                q, num_res
             );
 
             let client = reqwest::Client::new();
@@ -37,11 +37,15 @@ pub async fn search_pack(
             Ok(data)
         }
         None => {
-            let url = format!("https://crates.io/api/v1/crates?q=clap&sort=downloads&per_page=5");
+            let url =
+                format!("https://crates.io/api/v1/crates?q=thiserror&sort=downloads&per_page=5");
 
             let client = reqwest::Client::new();
 
-            let response = client.get(&url).send().await?;
+            let mut headers = HeaderMap::new();
+            headers.insert(USER_AGENT, HeaderValue::from_static("himan-crawler"));
+
+            let response = client.get(&url).headers(headers).send().await?;
 
             let data = response.json().await?;
 

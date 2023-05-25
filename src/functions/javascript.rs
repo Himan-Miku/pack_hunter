@@ -16,7 +16,7 @@ pub async fn search_pack(
 ) -> Result<ResponseObject, reqwest::Error> {
     match query {
         Some(s) => {
-            let url = format!("https://registry.npmjs.org/-/v1/search?text={}&size=5&popularity=1.0&quality=0.0&maintenance=0.0", s);
+            let url = format!("https://registry.npmjs.org/-/v1/search?text={}&size={}&popularity=1.0&quality=0.0&maintenance=0.0", s, num_res);
 
             let client = reqwest::Client::new();
 
