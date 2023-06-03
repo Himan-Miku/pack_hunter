@@ -46,86 +46,87 @@ async fn main() {
 
     println!("{:?}", list_results);
 
-    // let frameworks = ["React", "Vue", "Angular"];
+    // Initialize the terminal
+    let stdout = io::stdout();
+    let backend = CrosstermBackend::new(stdout);
+    let mut terminal = Terminal::new(backend).unwrap();
+    terminal.clear().unwrap();
 
-    // // Initialize the terminal
-    // let stdout = io::stdout();
-    // let backend = CrosstermBackend::new(stdout);
-    // let mut terminal = Terminal::new(backend).unwrap();
-    // terminal.clear().unwrap();
+    // Set up the interactive selection UI
+    let mut list_state = ListState::default();
+    let mut sel_index = 0;
+    list_state.select(Some(sel_index));
 
-    // // Set up the interactive selection UI
-    // let mut list_state = ListState::default();
-    // let mut sel_index = 0;
-    // list_state.select(Some(sel_index));
+    loop {
+        // Render the UI
+        terminal
+            .draw(|f| {
+                let chunks = Layout::default()
+                    .constraints([Constraint::Percentage(100)].as_ref())
+                    .split(f.size());
 
-    // loop {
-    //     // Render the UI
-    //     terminal
-    //         .draw(|f| {
-    //             let chunks = Layout::default()
-    //                 .constraints([Constraint::Percentage(100)].as_ref())
-    //                 .split(f.size());
+                let items: Vec<ListItem> = list_results
+                    .iter()
+                    .map(|list_result| {
+                        let item = ListItem::new(list_result.to_string()).style(Style::default());
+                        if let Some(selected_index) = list_state.selected() {
+                            if selected_index
+                                == list_results
+                                    .iter()
+                                    .position(|x| *x == *list_result)
+                                    .unwrap()
+                            {
+                                return item
+                                    .style(Style::default().add_modifier(Modifier::REVERSED));
+                            }
+                        }
+                        item
+                    })
+                    .collect();
 
-    //             let items: Vec<ListItem> = frameworks
-    //                 .iter()
-    //                 .map(|framework| {
-    //                     let item = ListItem::new(framework.to_string()).style(Style::default());
-    //                     if let Some(selected_index) = list_state.selected() {
-    //                         if selected_index
-    //                             == frameworks.iter().position(|x| *x == *framework).unwrap()
-    //                         {
-    //                             return item
-    //                                 .style(Style::default().add_modifier(Modifier::REVERSED));
-    //                         }
-    //                     }
-    //                     item
-    //                 })
-    //                 .collect();
+                let items_list = List::new(items)
+                    .block(
+                        Block::default()
+                            .borders(Borders::ALL)
+                            .title("Choose a list_result"),
+                    )
+                    .style(Style::default())
+                    .highlight_style(Style::default().add_modifier(Modifier::BOLD))
+                    .highlight_symbol("> ");
 
-    //             let items_list = List::new(items)
-    //                 .block(
-    //                     Block::default()
-    //                         .borders(Borders::ALL)
-    //                         .title("Choose a framework"),
-    //                 )
-    //                 .style(Style::default())
-    //                 .highlight_style(Style::default().add_modifier(Modifier::BOLD))
-    //                 .highlight_symbol("> ");
+                f.render_widget(items_list, chunks[0]);
+            })
+            .unwrap();
 
-    //             f.render_widget(items_list, chunks[0]);
-    //         })
-    //         .unwrap();
+        // Handle keyboard events
+        if let Ok(Event::Key(KeyEvent { code, kind, .. })) = crossterm::event::read() {
+            match kind {
+                KeyEventKind::Press => match code {
+                    KeyCode::Char('q') => {
+                        break;
+                    }
+                    KeyCode::Up => {
+                        if sel_index > 0 {
+                            sel_index -= 1;
+                        }
+                    }
+                    KeyCode::Down => {
+                        if sel_index < list_results.len() {
+                            sel_index += 1;
+                        }
+                    }
+                    KeyCode::Enter => {
+                        if let Some(selected_index) = list_state.selected() {
+                            println!("Selected list_result: {}", list_results[selected_index]);
+                            break;
+                        }
+                    }
+                    _ => {}
+                },
+                _ => {}
+            }
 
-    //     // Handle keyboard events
-    //     if let Ok(Event::Key(KeyEvent { code, kind, .. })) = crossterm::event::read() {
-    //         match kind {
-    //             KeyEventKind::Press => match code {
-    //                 KeyCode::Char('q') => {
-    //                     break;
-    //                 }
-    //                 KeyCode::Up => {
-    //                     if sel_index > 0 {
-    //                         sel_index -= 1;
-    //                     }
-    //                 }
-    //                 KeyCode::Down => {
-    //                     if sel_index < frameworks.len() {
-    //                         sel_index += 1;
-    //                     }
-    //                 }
-    //                 KeyCode::Enter => {
-    //                     if let Some(selected_index) = list_state.selected() {
-    //                         println!("Selected framework: {}", frameworks[selected_index]);
-    //                         break;
-    //                     }
-    //                 }
-    //                 _ => {}
-    //             },
-    //             _ => {}
-    //         }
-
-    //         list_state.select(Some(sel_index));
-    //     }
-    // }
+            list_state.select(Some(sel_index));
+        }
+    }
 }
