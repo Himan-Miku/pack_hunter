@@ -5,7 +5,11 @@ use clap::Parser;
 use crossterm::event::{Event, KeyCode, KeyEvent, KeyEventKind};
 use functions::{javascript, rust};
 use std::io;
-use structs::cli::{Cli, Commands};
+use structs::{
+    cli::{Cli, Commands},
+    js_structs::{Package, ResponseObject, SearchResult},
+    rs_structs::{Crate, ResponseObj},
+};
 use tui::{
     backend::CrosstermBackend,
     layout::{Constraint, Layout},
@@ -14,24 +18,33 @@ use tui::{
     Terminal,
 };
 
-enum ResponseType {
-    ResponseObject,
-    ResponseObj,
-}
-
 #[tokio::main]
 async fn main() {
     let cli = Cli::parse();
-    let list_results: Vec<ResponseType> = Vec::new();
+    let mut list_results: Vec<String> = Vec::new();
 
     match &cli.command {
         Commands::Javascript(js_options) => {
             let js_results = javascript::search_pack(js_options).await.unwrap();
+            let ResponseObject { objects } = js_results;
+            for object in objects {
+                let SearchResult {
+                    package: Package { name, .. },
+                } = object;
+                list_results.push(name);
+            }
         }
         Commands::Rust(rs_options) => {
             let rust_results = rust::search_pack(rs_options).await.unwrap();
+            let ResponseObj { crates } = rust_results;
+            for _crate in crates {
+                let Crate { name, .. } = _crate;
+                list_results.push(name);
+            }
         }
     }
+
+    println!("{:?}", list_results);
 
     // let frameworks = ["React", "Vue", "Angular"];
 
