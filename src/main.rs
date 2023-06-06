@@ -8,12 +8,12 @@ use reqwest::header::{HeaderMap, HeaderValue, USER_AGENT};
 use std::{error::Error, io};
 use structs::{
     cli::{Cli, Commands},
-    js_structs::{Package, ResponseObject, SearchResult, SingleResponseObject},
+    js_structs::{Package, Repo, ResponseObject, SearchResult, SingleResponseObject},
     rs_structs::{Crate, ResponseObj},
 };
 use tui::{
     backend::CrosstermBackend,
-    layout::{Constraint, Direction, Layout},
+    layout::{Alignment, Constraint, Direction, Layout},
     style::{Color, Modifier, Style},
     text::{Span, Spans},
     widgets::{Block, Borders, List, ListItem, ListState, Paragraph, Wrap},
@@ -110,6 +110,27 @@ async fn main() -> Result<(), Box<dyn Error>> {
                         license,
                         homepage,
                     } = data;
+
+                    let repo_url = repository
+                        .as_ref()
+                        .and_then(|repo| {
+                            let Repo { url } = repo;
+                            url.as_ref().map(|s| s.clone())
+                        })
+                        .unwrap_or(String::from(""));
+                    let des_str = description
+                        .as_ref()
+                        .map(|s| s.clone())
+                        .unwrap_or(String::from(""));
+                    let lic_str = license
+                        .as_ref()
+                        .map(|s| s.clone())
+                        .unwrap_or("".to_string());
+                    let home_str = homepage
+                        .as_ref()
+                        .map(|s| s.clone())
+                        .unwrap_or("".to_string());
+
                     let text = vec![
                         Spans::from(Span::styled(
                             name,
@@ -118,6 +139,19 @@ async fn main() -> Result<(), Box<dyn Error>> {
                                 .add_modifier(Modifier::BOLD),
                         )),
                         Spans::from(Span::styled(version, Style::default().fg(Color::Cyan))),
+                        Spans::from(Span::styled(
+                            des_str,
+                            Style::default().fg(Color::LightYellow),
+                        )),
+                        Spans::from(Span::styled(
+                            repo_url,
+                            Style::default().fg(Color::Rgb(160, 32, 240)),
+                        )),
+                        Spans::from(Span::styled(
+                            home_str,
+                            Style::default().fg(Color::Rgb(160, 32, 240)),
+                        )),
+                        Spans::from(Span::styled(lic_str, Style::default().fg(Color::LightRed))),
                     ];
                     let block = Block::default()
                         .title(" Crate Info -> ")
@@ -125,6 +159,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
                     let paragraph = Paragraph::new(text)
                         .style(Style::default().fg(Color::White))
                         .block(block)
+                        .alignment(Alignment::Center)
                         .wrap(Wrap { trim: true });
                     f.render_widget(paragraph, chunks[1]); // Adjust the index if necessary
                 }
