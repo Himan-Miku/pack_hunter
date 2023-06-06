@@ -67,7 +67,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
             .draw(|f| {
                 let chunks = Layout::default()
                     .direction(Direction::Horizontal)
-                    .constraints([Constraint::Percentage(50), Constraint::Percentage(50)].as_ref())
+                    .constraints([Constraint::Percentage(35), Constraint::Percentage(65)].as_ref())
                     .split(f.size());
 
                 let items: Vec<ListItem> = list_results
