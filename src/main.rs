@@ -225,6 +225,16 @@ async fn main() -> Result<(), Box<dyn Error>> {
                                 let data: SingleResponseObject = res.json().await?;
                                 selected_data = Some(data);
                             } else {
+                                // TODO : add rust crate info fucntionalty
+                                let url = format!(
+                                    "https://crates.io/api/v1/crates/{}/{}",
+                                    selected_result.0, selected_result.1
+                                );
+                                let client = reqwest::Client::new();
+                                let mut headers = HeaderMap::new();
+                                headers
+                                    .insert(USER_AGENT, HeaderValue::from_static("himan-crawler"));
+                                let res = client.get(url).headers(headers).send().await?;
                             }
                         }
                     }
