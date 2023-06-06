@@ -13,7 +13,7 @@ use structs::{
 };
 use tui::{
     backend::CrosstermBackend,
-    layout::{Constraint, Layout},
+    layout::{Constraint, Direction, Layout},
     style::{Color, Modifier, Style},
     widgets::{Block, Borders, List, ListItem, ListState, Paragraph},
     Terminal,
@@ -65,7 +65,8 @@ async fn main() -> Result<(), Box<dyn Error>> {
         terminal
             .draw(|f| {
                 let chunks = Layout::default()
-                    .constraints([Constraint::Percentage(100)].as_ref())
+                    .direction(Direction::Horizontal)
+                    .constraints([Constraint::Percentage(50), Constraint::Percentage(50)].as_ref())
                     .split(f.size());
 
                 let items: Vec<ListItem> = list_results
@@ -91,7 +92,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
                     .block(
                         Block::default()
                             .borders(Borders::ALL)
-                            .title("Choose a list_result"),
+                            .title(" Choose a Crate -> "),
                     )
                     .style(Style::default())
                     .highlight_style(Style::default().add_modifier(Modifier::BOLD))
@@ -101,11 +102,13 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
                 if let Some(data) = &selected_data {
                     let text = format!("{:#?}", data);
-                    let block = Block::default().title("Fetched Data").borders(Borders::ALL);
+                    let block = Block::default()
+                        .title(" Crate Info -> ")
+                        .borders(Borders::ALL);
                     let paragraph = Paragraph::new(text)
                         .style(Style::default().fg(Color::White))
                         .block(block);
-                    f.render_widget(paragraph, chunks[0]); // Adjust the index if necessary
+                    f.render_widget(paragraph, chunks[1]); // Adjust the index if necessary
                 }
             })
             .unwrap();
