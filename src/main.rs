@@ -132,26 +132,38 @@ async fn main() -> Result<(), Box<dyn Error>> {
                         .unwrap_or("".to_string());
 
                     let text = vec![
+                        Spans::from(vec![Span::raw("\n"), Span::raw("\n"), Span::raw("\n")]),
                         Spans::from(Span::styled(
-                            name,
+                            format!("Package Name : {} ", name),
                             Style::default()
                                 .fg(Color::Green)
                                 .add_modifier(Modifier::BOLD),
                         )),
-                        Spans::from(Span::styled(version, Style::default().fg(Color::Cyan))),
+                        Spans::from(Span::raw("\n")),
                         Spans::from(Span::styled(
-                            des_str,
+                            format!("Package Version : {} ", version),
+                            Style::default().fg(Color::Cyan),
+                        )),
+                        Spans::from(vec![Span::raw("\n"), Span::raw("\n")]),
+                        Spans::from(Span::styled(
+                            format!("Package Description : {} ", des_str),
                             Style::default().fg(Color::LightYellow),
                         )),
+                        Spans::from(vec![Span::raw("\n"), Span::raw("\n")]),
                         Spans::from(Span::styled(
-                            repo_url,
+                            format!("Repository URL : {} ", repo_url),
                             Style::default().fg(Color::Rgb(160, 32, 240)),
                         )),
+                        Spans::from(Span::raw("\n")),
                         Spans::from(Span::styled(
-                            home_str,
+                            format!("Package Homepage : {} ", home_str),
                             Style::default().fg(Color::Rgb(160, 32, 240)),
                         )),
-                        Spans::from(Span::styled(lic_str, Style::default().fg(Color::LightRed))),
+                        Spans::from(vec![Span::raw("\n"), Span::raw("\n")]),
+                        Spans::from(Span::styled(
+                            format!("License : {} ", lic_str),
+                            Style::default().fg(Color::LightRed),
+                        )),
                     ];
                     let block = Block::default()
                         .title(" Crate Info -> ")
@@ -159,7 +171,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
                     let paragraph = Paragraph::new(text)
                         .style(Style::default().fg(Color::White))
                         .block(block)
-                        .alignment(Alignment::Center)
+                        .alignment(Alignment::Left)
                         .wrap(Wrap { trim: true });
                     f.render_widget(paragraph, chunks[1]); // Adjust the index if necessary
                 }
