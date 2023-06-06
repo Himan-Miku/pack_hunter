@@ -16,7 +16,7 @@ use tui::{
     layout::{Alignment, Constraint, Direction, Layout},
     style::{Color, Modifier, Style},
     text::{Span, Spans},
-    widgets::{Block, Borders, List, ListItem, ListState, Paragraph, Wrap},
+    widgets::{Block, BorderType, Borders, List, ListItem, ListState, Paragraph, Wrap},
     Terminal,
 };
 
@@ -93,9 +93,10 @@ async fn main() -> Result<(), Box<dyn Error>> {
                     .block(
                         Block::default()
                             .borders(Borders::ALL)
+                            .border_type(BorderType::Rounded)
                             .title(" Choose a Crate -> "),
                     )
-                    .style(Style::default())
+                    .style(Style::default().fg(Color::White))
                     .highlight_style(Style::default().add_modifier(Modifier::BOLD))
                     .highlight_symbol("> ");
 
@@ -133,41 +134,53 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
                     let text = vec![
                         Spans::from(vec![Span::raw("\n"), Span::raw("\n"), Span::raw("\n")]),
-                        Spans::from(Span::styled(
-                            format!("Package Name : {} ", name),
-                            Style::default()
-                                .fg(Color::Green)
-                                .add_modifier(Modifier::BOLD),
-                        )),
+                        Spans::from(vec![
+                            Span::styled(
+                                "Package Name : ",
+                                Style::default()
+                                    .fg(Color::White)
+                                    .add_modifier(Modifier::BOLD),
+                            ),
+                            Span::styled(
+                                name,
+                                Style::default()
+                                    .fg(Color::Green)
+                                    .add_modifier(Modifier::BOLD),
+                            ),
+                        ]),
                         Spans::from(Span::raw("\n")),
-                        Spans::from(Span::styled(
-                            format!("Package Version : {} ", version),
-                            Style::default().fg(Color::Cyan),
-                        )),
+                        Spans::from(vec![
+                            Span::styled("Package Version : ", Style::default().fg(Color::White)),
+                            Span::styled(version, Style::default().fg(Color::Cyan)),
+                        ]),
                         Spans::from(vec![Span::raw("\n"), Span::raw("\n")]),
-                        Spans::from(Span::styled(
-                            format!("Package Description : {} ", des_str),
-                            Style::default().fg(Color::LightYellow),
-                        )),
+                        Spans::from(vec![
+                            Span::styled(
+                                "Package Description : ",
+                                Style::default().fg(Color::White),
+                            ),
+                            Span::styled(des_str, Style::default().fg(Color::Yellow)),
+                        ]),
                         Spans::from(vec![Span::raw("\n"), Span::raw("\n")]),
-                        Spans::from(Span::styled(
-                            format!("Repository URL : {} ", repo_url),
-                            Style::default().fg(Color::Rgb(160, 32, 240)),
-                        )),
+                        Spans::from(vec![
+                            Span::styled("Repository URL : ", Style::default().fg(Color::White)),
+                            Span::styled(repo_url, Style::default().fg(Color::Rgb(160, 32, 240))),
+                        ]),
                         Spans::from(Span::raw("\n")),
-                        Spans::from(Span::styled(
-                            format!("Package Homepage : {} ", home_str),
-                            Style::default().fg(Color::Rgb(160, 32, 240)),
-                        )),
+                        Spans::from(vec![
+                            Span::styled("Homepage URL : ", Style::default().fg(Color::White)),
+                            Span::styled(home_str, Style::default().fg(Color::Rgb(160, 32, 240))),
+                        ]),
                         Spans::from(vec![Span::raw("\n"), Span::raw("\n")]),
-                        Spans::from(Span::styled(
-                            format!("License : {} ", lic_str),
-                            Style::default().fg(Color::LightRed),
-                        )),
+                        Spans::from(vec![
+                            Span::styled("License : ", Style::default().fg(Color::White)),
+                            Span::styled(lic_str, Style::default().fg(Color::LightRed)),
+                        ]),
                     ];
                     let block = Block::default()
                         .title(" Crate Info -> ")
-                        .borders(Borders::ALL);
+                        .borders(Borders::ALL)
+                        .border_type(BorderType::Rounded);
                     let paragraph = Paragraph::new(text)
                         .style(Style::default().fg(Color::White))
                         .block(block)
