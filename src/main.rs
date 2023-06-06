@@ -15,7 +15,8 @@ use tui::{
     backend::CrosstermBackend,
     layout::{Constraint, Direction, Layout},
     style::{Color, Modifier, Style},
-    widgets::{Block, Borders, List, ListItem, ListState, Paragraph},
+    text::{Span, Spans},
+    widgets::{Block, Borders, List, ListItem, ListState, Paragraph, Wrap},
     Terminal,
 };
 
@@ -101,13 +102,30 @@ async fn main() -> Result<(), Box<dyn Error>> {
                 f.render_widget(items_list, chunks[0]);
 
                 if let Some(data) = &selected_data {
-                    let text = format!("{:#?}", data);
+                    let SingleResponseObject {
+                        name,
+                        version,
+                        description,
+                        repository,
+                        license,
+                        homepage,
+                    } = data;
+                    let text = vec![
+                        Spans::from(Span::styled(
+                            name,
+                            Style::default()
+                                .fg(Color::Green)
+                                .add_modifier(Modifier::BOLD),
+                        )),
+                        Spans::from(Span::styled(version, Style::default().fg(Color::Cyan))),
+                    ];
                     let block = Block::default()
                         .title(" Crate Info -> ")
                         .borders(Borders::ALL);
                     let paragraph = Paragraph::new(text)
                         .style(Style::default().fg(Color::White))
-                        .block(block);
+                        .block(block)
+                        .wrap(Wrap { trim: true });
                     f.render_widget(paragraph, chunks[1]); // Adjust the index if necessary
                 }
             })
