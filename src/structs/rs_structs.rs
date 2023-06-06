@@ -15,4 +15,5 @@ pub struct Crate {
     pub downloads: u64,
     pub max_stable_version: Option<String>,
     pub exact_match: Option<bool>,
+    pub max_version: Option<String>,
 }

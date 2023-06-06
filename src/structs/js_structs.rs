@@ -23,3 +23,18 @@ pub struct Link {
     pub npm: String,
     pub repository: Option<String>,
 }
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct SingleResponseObject {
+    pub name: String,
+    pub version: String,
+    pub description: Option<String>,
+    pub repository: Option<Repo>,
+    pub license: Option<String>,
+    pub homepage: Option<String>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct Repo {
+    pub url: Option<String>,
+}
