@@ -31,4 +31,5 @@ pub struct Version {
     pub id: u64,
     pub license: String,
     pub readme_path: String,
+    pub num: String,
 }
