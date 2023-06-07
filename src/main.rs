@@ -9,7 +9,7 @@ use std::{error::Error, io};
 use structs::{
     cli::{Cli, Commands},
     js_structs::{Package, Repo, ResponseObject, SearchResult, SingleResponseObject},
-    rs_structs::{Crate, ResponseObj},
+    rs_structs::{Crate, ResponseObj, SingleResponseObj},
 };
 use tui::{
     backend::CrosstermBackend,
@@ -19,6 +19,8 @@ use tui::{
     widgets::{Block, BorderType, Borders, List, ListItem, ListState, Paragraph, Wrap},
     Terminal,
 };
+
+use crate::structs::rs_structs::Version;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
@@ -60,11 +62,14 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let mut sel_index = 0;
     list_state.select(Some(sel_index));
     let mut selected_data: Option<SingleResponseObject> = None;
+    let mut selected_data_rs: Option<SingleResponseObj> = None;
 
     loop {
         // Render the UI
         terminal
             .draw(|f| {
+                let mut list_head: Option<&str> = None;
+
                 let chunks = Layout::default()
                     .direction(Direction::Horizontal)
                     .constraints([Constraint::Percentage(35), Constraint::Percentage(65)].as_ref())
@@ -85,6 +90,11 @@ async fn main() -> Result<(), Box<dyn Error>> {
                                     .style(Style::default().add_modifier(Modifier::REVERSED));
                             }
                         }
+                        if list_results.get(0).unwrap().2 == "js" {
+                            list_head = Some("Package");
+                        } else {
+                            list_head = Some("Crate");
+                        }
                         item
                     })
                     .collect();
@@ -94,7 +104,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
                         Block::default()
                             .borders(Borders::ALL)
                             .border_type(BorderType::Rounded)
-                            .title(" Choose a Crate -> "),
+                            .title(format!(" Choose a {} -> ", list_head.unwrap())),
                     )
                     .style(Style::default().fg(Color::White))
                     .highlight_style(Style::default().add_modifier(Modifier::BOLD))
@@ -178,6 +188,70 @@ async fn main() -> Result<(), Box<dyn Error>> {
                         ]),
                     ];
                     let block = Block::default()
+                        .title(" Package Info -> ")
+                        .borders(Borders::ALL)
+                        .border_type(BorderType::Rounded);
+                    let paragraph = Paragraph::new(text)
+                        .style(Style::default().fg(Color::White))
+                        .block(block)
+                        .alignment(Alignment::Left)
+                        .wrap(Wrap { trim: true });
+                    f.render_widget(paragraph, chunks[1]);
+                }
+
+                if let Some(data) = &selected_data_rs {
+                    let SingleResponseObj {
+                        version:
+                            Version {
+                                crate_name,
+                                downloads,
+                                license,
+                                readme_path,
+                                num,
+                                ..
+                            },
+                    } = data;
+                    let text = vec![
+                        Spans::from(vec![Span::raw("\n"), Span::raw("\n"), Span::raw("\n")]),
+                        Spans::from(vec![
+                            Span::styled(
+                                "Crate Name : ",
+                                Style::default()
+                                    .fg(Color::White)
+                                    .add_modifier(Modifier::BOLD),
+                            ),
+                            Span::styled(
+                                crate_name,
+                                Style::default()
+                                    .fg(Color::Green)
+                                    .add_modifier(Modifier::BOLD),
+                            ),
+                        ]),
+                        Spans::from(Span::raw("\n")),
+                        Spans::from(vec![
+                            Span::styled("Crate Version : ", Style::default().fg(Color::White)),
+                            Span::styled(num, Style::default().fg(Color::Cyan)),
+                        ]),
+                        Spans::from(Span::raw("\n")),
+                        Spans::from(vec![
+                            Span::styled("Crate Downloads : ", Style::default().fg(Color::White)),
+                            Span::styled(downloads.to_string(), Style::default().fg(Color::Cyan)),
+                        ]),
+                        Spans::from(vec![Span::raw("\n"), Span::raw("\n")]),
+                        Spans::from(vec![
+                            Span::styled("README : ", Style::default().fg(Color::White)),
+                            Span::styled(
+                                format!("https://crates.io{}", readme_path),
+                                Style::default().fg(Color::Rgb(160, 32, 240)),
+                            ),
+                        ]),
+                        Spans::from(vec![Span::raw("\n"), Span::raw("\n")]),
+                        Spans::from(vec![
+                            Span::styled("License : ", Style::default().fg(Color::White)),
+                            Span::styled(license, Style::default().fg(Color::LightRed)),
+                        ]),
+                    ];
+                    let block = Block::default()
                         .title(" Crate Info -> ")
                         .borders(Borders::ALL)
                         .border_type(BorderType::Rounded);
@@ -186,7 +260,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
                         .block(block)
                         .alignment(Alignment::Left)
                         .wrap(Wrap { trim: true });
-                    f.render_widget(paragraph, chunks[1]); // Adjust the index if necessary
+                    f.render_widget(paragraph, chunks[1]);
                 }
             })
             .unwrap();
@@ -235,6 +309,8 @@ async fn main() -> Result<(), Box<dyn Error>> {
                                 headers
                                     .insert(USER_AGENT, HeaderValue::from_static("himan-crawler"));
                                 let res = client.get(url).headers(headers).send().await?;
+                                let data: SingleResponseObj = res.json().await?;
+                                selected_data_rs = Some(data);
                             }
                         }
                     }
