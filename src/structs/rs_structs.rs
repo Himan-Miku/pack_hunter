@@ -17,3 +17,18 @@ pub struct Crate {
     pub exact_match: Option<bool>,
     pub max_version: Option<String>,
 }
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct SingleResponseObj {
+    pub version: Version,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct Version {
+    #[serde(rename = "crate")]
+    pub crate_name: String,
+    pub downloads: u64,
+    pub id: u64,
+    pub license: String,
+    pub readme_path: String,
+}
